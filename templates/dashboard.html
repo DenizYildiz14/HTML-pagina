@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Tracker Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Health Tracker</h1>
+
+      <section class="card">
+        <h2>Progress</h2>
+        <p class="highlight">{{ busy_days }} days busy.</p>
+      </section>
+
+      <section class="card">
+        <h2>Water Intake</h2>
+        <p><strong>{{ '%.2f'|format(water_liters) }}L</strong> / {{ water_target }}L target</p>
+        <div class="progress-bar">
+          <div class="progress" style="width: {{ water_percent }}%;"></div>
+        </div>
+        <div class="button-row">
+          <form action="{{ url_for('update_water') }}" method="post">
+            <input type="hidden" name="direction" value="minus" />
+            <button type="submit">-</button>
+          </form>
+          <form action="{{ url_for('update_water') }}" method="post">
+            <input type="hidden" name="direction" value="plus" />
+            <button type="submit">+</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Weight Progress</h2>
+        <form action="{{ url_for('add_weight') }}" method="post" class="weight-form">
+          <input type="number" name="weight_kg" step="0.1" min="20" max="400" placeholder="Enter weight (kg)" required />
+          <button type="submit">Add</button>
+        </form>
+        <canvas id="weightChart" height="120"></canvas>
+      </section>
+
+      <section class="card">
+        <h2>Supplements</h2>
+        <p>{{ taken_count }} / {{ total_supplements }} taken today.</p>
+        <ul>
+          {% for name, taken in supplements_today.items() %}
+          <li>{{ name }}: <strong>{{ 'Taken' if taken else 'Not taken' }}</strong></li>
+          {% endfor %}
+        </ul>
+        <a class="link-button" href="{{ url_for('supplements') }}">Update supplement status</a>
+      </section>
+    </main>
+
+    <script>
+      const labels = {{ chart_labels|safe }};
+      const values = {{ chart_values|safe }};
+
+      const ctx = document.getElementById('weightChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Weight (kg)',
+              data: values,
+              borderColor: '#1d4ed8',
+              backgroundColor: '#93c5fd',
+              tension: 0.25,
+              fill: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+              },
+            },
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

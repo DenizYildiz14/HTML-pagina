@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supplements</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Supplement Tracker</h1>
+
+      <section class="card">
+        <form action="{{ url_for('supplements') }}" method="post">
+          {% for supplement, taken in supplements.items() %}
+          <div class="supplement-row">
+            <p><strong>{{ supplement }}</strong></p>
+            <label>
+              <input type="radio" name="{{ supplement }}" value="taken" {% if taken %}checked{% endif %}>
+              Taken
+            </label>
+            <label>
+              <input type="radio" name="{{ supplement }}" value="not_taken" {% if not taken %}checked{% endif %}>
+              Not taken
+            </label>
+          </div>
+          {% endfor %}
+
+          <div class="button-row">
+            <button type="submit">Save</button>
+            <a class="link-button" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
